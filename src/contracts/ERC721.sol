@@ -18,6 +18,11 @@ pragma solidity ^0.8.0;
     */
 
 contract ERC721 {
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        uint256 indexed tokenId
+    );
     // mapping in solidity create a hash table of key value pairs
     // Mapping from token id to the owner
     mapping(uint256 => address) private _tokenOwner;
@@ -25,9 +30,21 @@ contract ERC721 {
     // Mapping from owner to number of owned tokens
     mapping(address => uint256) private _ownedTokensCount;
 
+    function _exists(uint256 tokenId) internal view returns (bool) {
+        address owner = _tokenOwner[tokenId];
+        return owner != address(0);
+    }
+
     function _mint(address to, uint256 tokenId) internal {
+        // require that an address is not zero
         require(to != address(0), "ERC721: minting to the zero address");
+        // require that token doesn't already exist
+        require(!_exists(tokenId), "ERC721: token already minted");
+        // we are adding a new address with a token id for minting
         _tokenOwner[tokenId] = to;
+        // keeping track of each address that is minting and adding one to that account
         _ownedTokensCount[to] += 1;
+
+        emit Transfer(address(0), to, tokenId);
     }
 }
